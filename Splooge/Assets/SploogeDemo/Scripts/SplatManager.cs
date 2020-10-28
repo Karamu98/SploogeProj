@@ -3,13 +3,6 @@ using UnityEngine.Rendering;
 using System.Collections;
 using System.Collections.Generic;
 
-public struct Splat 
-{
-	public Matrix4x4 SplatMatrix;
-	public Vector4 ChannelMask;
-	public Vector4 ScaleBias;
-}
-
 public class SplatManager : MonoBehaviour 
 {
 	[Header("Splats Atlas")]
@@ -22,18 +15,43 @@ public class SplatManager : MonoBehaviour
 	public static SplatManager Instance { get; private set; }
 
 	public Vector4 Scores { get { return m_scores; } }
-	public Vector2Int SplatCount { get { return m_splatCount; } }
 
 
-	public void AddRenderer(Renderer newRenderer)
-    {
-		Debug.Log("Adding Renderer");
-		m_renderers.Add(newRenderer);
-	}
 
-	public void AddSplat(Splat splat)
+	// This just picks a random scale and bias for a 4x4 splat atlas
+	// You could use a larger atlas of splat textures and pick a scale and offset for the specific splat you want to use
+	public void CreateSplatAtPoint(Vector3 point, Vector3 normal, Vector4 mask, float scale)
 	{
-		m_splatsBacklog.Add(splat);
+		// Generate our rotation
+		Vector3 leftVec = Vector3.Cross(normal, Vector3.up);
+		float randScale = Random.Range(0.5f, 1.5f);
+
+		m_transformMakerObj.transform.position = point;
+
+		if (leftVec.magnitude > 0.001f)
+		{
+			m_transformMakerObj.transform.rotation = Quaternion.LookRotation(leftVec, normal);
+		}
+		else
+		{
+			m_transformMakerObj.transform.rotation = Quaternion.LookRotation(Vector3.left, Vector3.up);
+		}
+
+		m_transformMakerObj.transform.RotateAround(point, normal, Random.Range(-180, 180));
+		m_transformMakerObj.transform.localScale = new Vector3(randScale, randScale * 0.5f, randScale) * scale;
+
+		Splat newSplat;
+		newSplat.SplatMatrix = m_transformMakerObj.transform.worldToLocalMatrix;
+		newSplat.ChannelMask = mask;
+
+		float splatscaleX = 1.0f / m_splatCount.x;
+		float splatscaleY = 1.0f / m_splatCount.y;
+		float splatsBiasX = Mathf.Floor(Random.Range(0, m_splatCount.x * 0.99f)) / m_splatCount.x;
+		float splatsBiasY = Mathf.Floor(Random.Range(0, m_splatCount.y * 0.99f)) / m_splatCount.y;
+
+		newSplat.ScaleBias = new Vector4(splatscaleX, splatscaleY, splatsBiasX, splatsBiasY);
+
+		m_splatsBacklog.Add(newSplat);
 	}
 
 	public void ClearAllSplats()
@@ -92,13 +110,18 @@ public class SplatManager : MonoBehaviour
 		SplatTarget[] allSplatTargets = FindObjectsOfType<SplatTarget>();
 		foreach(var target in allSplatTargets)
         {
-			target.Init();
+			Renderer newRenderer = target.GetRenderer();
+			if (newRenderer == null) continue;
+			m_renderers.Add(newRenderer);
         }
 
 		RenderTextures();
 		BleedTextures ();
 		StartCoroutine( UpdateScores() );
-    }
+
+		m_transformMakerObj = new GameObject();
+		m_transformMakerObj.name = "SplatTransformMaker";
+	}
 
 	/*
 	// Render textures using shader replacement.
@@ -335,10 +358,20 @@ public class SplatManager : MonoBehaviour
 
 	private Material m_splatBlitMaterial;
 
+	private GameObject m_transformMakerObj;
+
 	private RenderTexture m_scoreTex;
 	private RenderTexture m_rt4;
 	private Texture2D m_tex4;
 
 	private Vector4 m_scores = Vector4.zero;
 
+
+
+	public struct Splat
+	{
+		public Matrix4x4 SplatMatrix;
+		public Vector4 ChannelMask;
+		public Vector4 ScaleBias;
+	}
 }

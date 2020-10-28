@@ -4,13 +4,14 @@ using UnityEngine;
 
 public class SplatTarget : MonoBehaviour 
 {
-	public void Init() 
+	[SerializeField] Renderer m_renderer;
+	public Renderer GetRenderer() 
 	{
-		Renderer renderer = gameObject.GetComponent<Renderer>();
-		if (renderer != null) 
+		if (m_renderer != null) 
 		{
-			SplatManager.Instance.AddRenderer(renderer);
+			return m_renderer;
 		}
+		return null;
 	}
 
 }
