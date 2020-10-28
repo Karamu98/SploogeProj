@@ -36,6 +36,13 @@ public class SplatManager : MonoBehaviour
 		m_splatsBacklog.Add(splat);
 	}
 
+	public void ClearAllSplats()
+    {
+		Graphics.Blit(Texture2D.blackTexture, m_splatTexPing, m_splatBlitMaterial, 1);
+		Graphics.Blit(Texture2D.blackTexture, m_splatTexPong, m_splatBlitMaterial, 1);
+		m_splatsBacklog.Clear();
+	}
+
 	private void Awake() 
 	{
 		if (Instance != null) 
@@ -81,6 +88,12 @@ public class SplatManager : MonoBehaviour
 		m_rt4 = new RenderTexture(4, 4, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 		m_rt4.Create();
 		m_tex4 = new Texture2D(4, 4, TextureFormat.ARGB32, false);
+
+		SplatTarget[] allSplatTargets = FindObjectsOfType<SplatTarget>();
+		foreach(var target in allSplatTargets)
+        {
+			target.Init();
+        }
 
 		RenderTextures();
 		BleedTextures ();
@@ -177,8 +190,8 @@ public class SplatManager : MonoBehaviour
 
 	private void BleedTextures() 
 	{
-		Graphics.Blit (Texture2D.blackTexture, m_splatTexPing, m_splatBlitMaterial, 1);		
-		Graphics.Blit (Texture2D.blackTexture, m_splatTexPong, m_splatBlitMaterial, 1);
+		Graphics.Blit(Texture2D.blackTexture, m_splatTexPing, m_splatBlitMaterial, 1);		
+		Graphics.Blit(Texture2D.blackTexture, m_splatTexPong, m_splatBlitMaterial, 1);
 
 		m_splatBlitMaterial.SetVector("_SplatTexSize", new Vector2( m_splatMapTexSize.x, m_splatMapTexSize.y) );
 
@@ -186,8 +199,8 @@ public class SplatManager : MonoBehaviour
 		tempTex.Create();
 
 		// Bleed the world position out 2 pixels
-		Graphics.Blit (m_worldPosTex, tempTex, m_splatBlitMaterial, 2);
-		Graphics.Blit (tempTex, m_worldPosTex, m_splatBlitMaterial, 2);
+		Graphics.Blit(m_worldPosTex, tempTex, m_splatBlitMaterial, 2);
+		Graphics.Blit(tempTex, m_worldPosTex, m_splatBlitMaterial, 2);
 
 		// Don't need this guy any more
 		tempTex.Release();

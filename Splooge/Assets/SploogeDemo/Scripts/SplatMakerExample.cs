@@ -14,19 +14,19 @@ public class SplatMakerExample : MonoBehaviour
 	{
 		if(Input.GetKeyDown(KeyCode.Alpha1))
 		{
-			m_channelMask = new Vector4(1,0,0,0);
+			m_channelMask = new Vector4(1, 0, 0, 0);
 		}
 		else if(Input.GetKeyDown(KeyCode.Alpha2))
 		{
-			m_channelMask = new Vector4(0,1,0,0);
+			m_channelMask = new Vector4(0, 1, 0, 0);
 		}
 		else if(Input.GetKeyDown(KeyCode.Alpha3))
 		{
-			m_channelMask = new Vector4(0,0,1,0);
+			m_channelMask = new Vector4(0, 0, 1, 0);
 		}
 		else if(Input.GetKeyDown(KeyCode.Alpha4))
 		{
-			m_channelMask = new Vector4(0,0,0,1);
+			m_channelMask = new Vector4(0, 0, 0, 1);
 		}
 			
 		// Cast a ray from the camera to the mouse pointer and draw a splat there.
@@ -43,7 +43,15 @@ public class SplatMakerExample : MonoBehaviour
 		}	
 	}
 
-	private void CreateSplatAtPoint(Vector3 point, Vector3 normal)
+    private void OnGUI()
+    {
+        if(GUILayout.Button("Clear all splats"))
+        {
+			SplatManager.Instance.ClearAllSplats();
+        }
+    }
+
+    private void CreateSplatAtPoint(Vector3 point, Vector3 normal)
     {
 		// Generate our rotation
 		Vector3 leftVec = Vector3.Cross(normal, Vector3.up);
