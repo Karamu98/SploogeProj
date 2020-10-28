@@ -17,11 +17,12 @@ public class DemoCamera : MonoBehaviour
 	// Use this for initialization
 	void Start () 
 	{
-		m_controlledCam = GetComponent<Camera>();	
+		m_controlledCam = GetComponent<Camera>();
 
 		if(Application.isPlaying == true )
 		{
-			targetTransform = new GameObject().transform;
+			GameObject newObj = new GameObject("CameraTargetTransform");
+			targetTransform = newObj.transform;
 			targetTransform.position = m_controlledCam.transform.position;
 			targetTransform.rotation = m_controlledCam.transform.rotation;
 		}
